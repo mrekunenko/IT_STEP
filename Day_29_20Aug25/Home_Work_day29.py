@@ -60,10 +60,19 @@ cart.show_cart()
 
 class Phone:
     def __init__(self, number, battery_level=100):
+        """
+        Конструктор класу Phone
+        number - номер телефону
+        battery_level - рівень заряду батареї (за замовчуванням 100%)
+        """
         self.number = number
         self.battery_level = battery_level
 
     def use_battery(self, percent):
+        """
+        Метод для зменшення заряду телефона
+        usage - на скільки відсотків зменшити заряд
+        """
         self.battery_level -= percent
         if self.battery_level < 0:
             self.battery_level = 0   # заряд не може бути від’ємним
@@ -72,6 +81,9 @@ class Phone:
         print(f"Залишок заряду: {self.battery_level}%")
 
     def show_info(self):
+        """
+        Метод для виведення інформації про телефон
+        """
         print(f"Телефон {self.number}, заряд: {self.battery_level}%")
 
 phone = Phone("+380501234567", 50)
