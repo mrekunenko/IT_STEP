@@ -38,7 +38,7 @@ class Film(BaseModel):
 
 
 app = FastAPI()
-FILENAME = "films.json"
+FILENAME = "movies.json"
 
 @app.get("/movies")
 def get_all_movies():

@@ -1,67 +1,159 @@
+"""
+client.py
+Простий клієнт командного рядка для взаємодії з API фільмів.
+
+Запуск:
+    python client.py
+
+Можливості:
+    1. Отримати дані про конкретний фільм за ID
+    2. Отримати всі фільми
+    3. Додати новий фільм
+    4. Видалити фільм
+    5. Вийти
+"""
+
 import requests
 
+BASE_URL = "http://127.0.0.1:8000"
 
-while True:
-    user_choice = int(input("Choose service: Get film data(1). "
-                            "Get all films from database(2). Add new film(3). "
-                            "Delete film(4). Exit(5): "))
 
-    if user_choice == 1:
-        film_id = int(input("Enter film ID: "))
-        response = requests.get(f"http://localhost:8000/movies/{film_id}")
+def надрукувати_фільм(фільм: dict) -> None:
+    """
+    Акуратно вивести один фільм.
+    """
+    print("------------------------")
+    print(f"ID:        {фільм.get('id')}")
+    print(f"Назва:     {фільм.get('title')}")
+    print(f"Режисер:   {фільм.get('director')}")
+    print(f"Рік:       {фільм.get('year')}")
+    print("------------------------")
 
-        if response.ok:
-            data = response.json()
 
-            print(f"Movie ID: {data["id"]}. Movie data: {data}")
+def отримати_фільм():
+    """
+    Запитує ID у користувача і робить GET /movies/{id}
+    """
+    try:
+        film_id = int(input("Введіть ID фільму: "))
+    except ValueError:
+        print("ID має бути числом.")
+        return
 
+    resp = requests.get(f"{BASE_URL}/movies/{film_id}")
+
+    if resp.status_code == 200:
+        data = resp.json()
+        надрукувати_фільм(data)
+    else:
+        print(f"Помилка {resp.status_code}: {resp.text}")
+
+
+def отримати_всі():
+    """
+    Робить GET /movies і виводить усі фільми.
+    """
+    resp = requests.get(f"{BASE_URL}/movies")
+
+    if resp.status_code == 200:
+        data = resp.json()  # очікуємо список
+        if not data:
+            print("База порожня.")
         else:
-            print(response.text)
+            print(f"Знайдено {len(data)} фільм(и/ів):")
+            for film in data:
+                надрукувати_фільм(film)
+    else:
+        print(f"Помилка {resp.status_code}: {resp.text}")
 
-    elif user_choice == 2:
-        response = requests.get(f"http://localhost:8000/movies")
 
-        if response.ok:
-            data = response.json()
+def додати_фільм():
+    """
+    Запитує інформацію про новий фільм у користувача і робить POST /movies
+    """
+    try:
+        film_id = int(input("Введіть ID фільму (число): "))
+    except ValueError:
+        print("ID має бути числом.")
+        return
 
-            for key, value in data.items():
-                print(f"Movie ID: {key}. Movie data: {value}")
+    title = input("Введіть назву фільму: ").strip()
+    director = input("Введіть режисера: ").strip()
 
+    try:
+        year = int(input("Введіть рік виходу фільму: "))
+    except ValueError:
+        print("Рік має бути числом.")
+        return
+
+    payload = {
+        "id": film_id,
+        "title": title,
+        "director": director,
+        "year": year
+    }
+
+    resp = requests.post(f"{BASE_URL}/movies", json=payload)
+
+    if resp.status_code == 201:
+        print("Фільм успішно додано:")
+        надрукувати_фільм(resp.json())
+    else:
+        print(f"Помилка {resp.status_code}: {resp.text}")
+
+
+def видалити_фільм():
+    """
+    Запитує ID і робить DELETE /movies/{id}
+    """
+    try:
+        film_id = int(input("Введіть ID фільму для видалення: "))
+    except ValueError:
+        print("ID має бути числом.")
+        return
+
+    resp = requests.delete(f"{BASE_URL}/movies/{film_id}")
+
+    if resp.status_code == 204:
+        print("Фільм успішно видалено.")
+    else:
+        print(f"Помилка {resp.status_code}: {resp.text}")
+
+
+def головне_меню():
+    """
+    Нескінченний цикл вибору дій.
+    """
+    while True:
+        print()
+        print("Оберіть дію:")
+        print("1. Отримати інформацію про фільм за ID")
+        print("2. Отримати всі фільми")
+        print("3. Додати новий фільм")
+        print("4. Видалити фільм")
+        print("5. Вийти")
+        print()
+
+        try:
+            choice = int(input("Ваш вибір (1-5): "))
+        except ValueError:
+            print("Будь ласка, введіть число від 1 до 5.")
+            continue
+
+        if choice == 1:
+            отримати_фільм()
+        elif choice == 2:
+            отримати_всі()
+        elif choice == 3:
+            додати_фільм()
+        elif choice == 4:
+            видалити_фільм()
+        elif choice == 5:
+            print("Вихід з клієнта...")
+            break
         else:
-            print(response.text)
+            print("Невірний вибір. Введіть число від 1 до 5.")
 
-    elif user_choice == 3:
-        film_id = int(input("Enter film ID: "))
-        film_title = input("Enter film Title: ")
-        film_director = input("Enter film Director: ")
-        film_year = int(input("Enter film Year: "))
 
-        film_data = {
-            "id": film_id,
-            "title": film_title,
-            "director": film_director,
-            "year": film_year
-        }
-
-        response = requests.post(f"http://localhost:8000/movies", json=film_data)
-
-        if response.ok:
-            print(response.text)
-
-        else:
-            print(response.status_code)
-
-    elif user_choice == 4:
-        film_id = int(input("Enter film ID: "))
-
-        response = requests.delete(f"http://localhost:8000/movies/{film_id}")
-
-        if response.ok:
-            print(response.text)
-
-        else:
-            print(response.text)
-
-    elif user_choice == 5:
-        print("Exit from program...")
-        break
+if __name__ == "__main__":
+    головне_меню()
