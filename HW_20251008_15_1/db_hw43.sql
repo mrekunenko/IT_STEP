@@ -1,76 +1,133 @@
+-- =====================================================================
+-- Домашнє завдання
 -- Модуль 15. Вступ до теорії баз даних
 -- Тема: Вступ до теорії баз даних. Частина 1
--- #====================================================================================
--- Завдання 1
--- Створіть базу даних під назвою Birds. Розташування залишається на ваш вибір.
--- #====================================================================================
--- Завдання 2
--- Переназвіть базу даних із першого завдання. Нове ім’я для бази даних Cats.
--- #====================================================================================
--- Завдання 3
+
+-- =====================================================================
+-- ЗАВДАННЯ 1
+-- Створіть базу даних під назвою Birds.
+-- =====================================================================
+
+CREATE DATABASE birds;
+
+
+-- =====================================================================
+-- ЗАВДАННЯ 2
+-- Перейменуйте базу даних Birds на Cats.
+-- Важливо: цю команду треба виконувати НЕ зсередини бази birds.
+-- Потрібно бути підключеним до іншої бази (наприклад, postgres).
+-- =====================================================================
+
+ALTER DATABASE birds RENAME TO cats;
+
+
+-- =====================================================================
+-- ЗАВДАННЯ 3
 -- Видаліть базу даних Cats.
--- #====================================================================================
--- Завдання 4
--- Створіть однотабличну базу даних «Овочі та фрукти»,
--- яка зберігатиме таку інформацію:
--- ■ Назва;
--- ■ Тип (овоч або фрукт);
--- ■ Колір;
--- ■ Калорійність;
--- ■ Короткий опис.
--- #====================================================================================
--- Завдання 5
--- Створіть наступні запити для таблиці з інформацією про
--- овочі та фрукти із попереднього завдання:
--- ■ Відображення всієї інформації з таблиці овочів та фруктів;
--- ■ Відображення усіх овочів;
--- ■ Відображення усіх фруктів;
--- ■ Відображення усіх назв овочів та фруктів;
--- ■ Відображення усіх кольорів. Кольори мають бути унікальними;
--- ■ Відображення фруктів певного кольору;
--- ■ Відображення овочів певного кольору.
+-- Знову ж таки, ви не можете дропнути базу, якщо ви всередині неї.
+-- Треба підключитись до іншої бази, потім виконати цю команду.
+-- =====================================================================
 
-CREATE DATABASE BIRDS;
-ALTER DATABASE BIRDS RENAME TO CATS;
-DROP DATABASE CATS;
-CREATE DATABASE FRUITS_VEGETABLES;
+DROP DATABASE cats;
 
-INSERT INTO FRUITS_VEGETABLES
-(FRUIT_VEGETABLE_NAME, TYPE_FRUIT_VAGETABLE, FRUIT_VEGETABLE_COLOR, FRUIT_VEGETABLE_CALS, FRUIT_VEGETABLE_ABOUT)
-VALUES
-('Apple', 'Fruit', 'Red', 52, 'Sweet and juicy fruit'),
-('Banana', 'Fruit', 'Yellow', 89, 'Soft tropical fruit'),
-('Orange', 'Fruit', 'Orange', 47, 'Citrus rich in vitamin C'),
-('Strawberry', 'Fruit', 'Red', 33, 'Small and sweet berry'),
-('Watermelon', 'Fruit', 'Green/Red', 30, 'Refreshing summer fruit'),
-('Pear', 'Fruit', 'Green', 57, 'Soft and juicy fruit'),
-('Peach', 'Fruit', 'Orange', 39, 'Sweet fuzzy fruit'),
-('Grape', 'Fruit', 'Purple', 69, 'Small sweet berries'),
-('Pineapple', 'Fruit', 'Yellow', 50, 'Tropical juicy fruit'),
-('Kiwi', 'Fruit', 'Brown/Green', 41, 'Tangy and vitamin-rich fruit'),
-('Tomato', 'Vegetable', 'Red', 18, 'Common salad vegetable'),
-('Cucumber', 'Vegetable', 'Green', 16, 'Cool and crunchy vegetable'),
-('Carrot', 'Vegetable', 'Orange', 41, 'Rich in beta-carotene'),
-('Potato', 'Vegetable', 'Brown', 77, 'Starchy root vegetable'),
-('Onion', 'Vegetable', 'White', 40, 'Used in cooking for flavor'),
-('Broccoli', 'Vegetable', 'Green', 34, 'Healthy green vegetable'),
-('Spinach', 'Vegetable', 'Green', 23, 'Leafy and iron-rich'),
-('Cabbage', 'Vegetable', 'Green', 25, 'Common leafy vegetable'),
-('Eggplant', 'Vegetable', 'Purple', 25, 'Soft and spongy vegetable'),
-('Pepper', 'Vegetable', 'Red', 31, 'Colorful and sweet vegetable');
 
-SELECT * FROM FRUITS_VEGETABLES;
-SELECT * FROM FRUITS_VEGETABLES WHERE TYPE_FRUIT_VAGETABLE = 'Vegetable';
-SELECT * FROM FRUITS_VEGETABLES WHERE TYPE_FRUIT_VAGETABLE = 'Fruit';
-SELECT FRUIT_VEGETABLE_NAME FROM FRUITS_VEGETABLES;
-SELECT DISTINCT FRUIT_VEGETABLE_COLOR FROM FRUITS_VEGETABLES;
+-- =====================================================================
+-- ЗАВДАННЯ 4
+-- Створіть однотабличну базу даних "Овочі та фрукти".
+--
+-- Логіка:
+-- 1. Створюємо окрему базу даних fruits_vegetables.
+-- 2. Заходимо в неї (у psql це команда \c fruits_vegetables; — не SQL).
+-- 3. Створюємо таблицю products з потрібними полями:
+--      name        - назва
+--      kind        - тип (Fruit / Vegetable)
+--      color       - колір
+--      calories    - калорійність
+--      description - короткий опис
+--
+-- Примітка:
+-- Використовуємо звичні англомовні імена стовпців у snake_case.
+-- Додаємо автоінкрементне поле id як PRIMARY KEY.
+-- =====================================================================
 
-SELECT FRUIT_VEGETABLE_NAME, FRUIT_VEGETABLE_COLOR
-FROM FRUITS_VEGETABLES
-WHERE FRUIT_VEGETABLE_COLOR = 'Red'
-AND TYPE_FRUIT_VAGETABLE = 'Fruit';
+CREATE DATABASE fruits_vegetables;
 
-SELECT FRUIT_VEGETABLE_NAME, FRUIT_VEGETABLE_COLOR
-FROM FRUITS_VEGETABLES
-WHERE FRUIT_VEGETABLE_COLOR = 'Green'
-AND TYPE_FRUIT_VAGETABLE = 'Vegetable';
+-- Підключення до бази:
+-- \c fruits_vegetables;
+
+-- Створення таблиці з продуктами (овочі та фрукти)
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    kind TEXT NOT NULL,       -- 'Fruit' або 'Vegetable'
+    color TEXT NOT NULL,
+    calories INT,
+    description TEXT
+);
+
+
+-- Заповнення таблиці products даними
+INSERT INTO products (name, kind, color, calories, description) VALUES
+('Apple',       'Fruit',     'Red',           52, 'Солодкий та соковитий фрукт'),
+('Banana',      'Fruit',     'Yellow',        89, 'Мʼякий тропічний фрукт'),
+('Orange',      'Fruit',     'Orange',        47, 'Цитрус, багатий на вітамін C'),
+('Strawberry',  'Fruit',     'Red',           33, 'Невеликі солодкі ягоди'),
+('Watermelon',  'Fruit',     'Green/Red',     30, 'Соковитий літній фрукт'),
+('Pear',        'Fruit',     'Green',         57, 'Мʼякий соковитий фрукт'),
+('Peach',       'Fruit',     'Orange',        39, 'Запашний солодкий плід'),
+('Grape',       'Fruit',     'Purple',        69, 'Невеликі солодкі ягоди'),
+('Pineapple',   'Fruit',     'Yellow',        50, 'Соковитий тропічний фрукт'),
+('Kiwi',        'Fruit',     'Brown/Green',   41, 'Кислуватий, з великою кількістю вітамінів'),
+('Tomato',      'Vegetable', 'Red',           18, 'Часто використовується в салатах'),
+('Cucumber',    'Vegetable', 'Green',         16, 'Свіжий та хрумкий овоч'),
+('Carrot',      'Vegetable', 'Orange',        41, 'Багатий на бета-каротин'),
+('Potato',      'Vegetable', 'Brown',         77, 'Крохмалистий коренеплід'),
+('Onion',       'Vegetable', 'White',         40, 'Використовується для смаку в багатьох стравах'),
+('Broccoli',    'Vegetable', 'Green',         34, 'Корисний зелений овоч'),
+('Spinach',     'Vegetable', 'Green',         23, 'Листова зелень, багата на залізо'),
+('Cabbage',     'Vegetable', 'Green',         25, 'Звична листова капуста'),
+('Eggplant',    'Vegetable', 'Purple',        25, 'Мʼякий овоч із фіолетовою шкіркою'),
+('Pepper',      'Vegetable', 'Red',           31, 'Яскравий солодкий перець');
+
+
+-- =====================================================================
+-- ЗАВДАННЯ 5
+-- Створіть наступні запити:
+--   1) Відображення всієї інформації з таблиці овочів та фруктів
+--   2) Відображення усіх овочів
+--   3) Відображення усіх фруктів
+--   4) Відображення усіх назв овочів та фруктів
+--   5) Відображення усіх кольорів (унікальних)
+--   6) Відображення фруктів певного кольору
+--   7) Відображення овочів певного кольору
+-- =====================================================================
+
+-- 1. Уся інформація:
+SELECT * FROM products;
+
+-- 2. Усі овочі:
+SELECT * FROM products
+WHERE kind = 'Vegetable';
+
+-- 3. Усі фрукти:
+SELECT * FROM products
+WHERE kind = 'Fruit';
+
+-- 4. Усі назви:
+SELECT name FROM products;
+
+-- 5. Усі унікальні кольори:
+SELECT DISTINCT color
+FROM products;
+
+-- 6. Фрукти певного кольору (приклад: червоні):
+SELECT name, color
+FROM products
+WHERE kind = 'Fruit'
+  AND color = 'Red';
+
+-- 7. Овочі певного кольору (приклад: зелені):
+SELECT name, color
+FROM products
+WHERE kind = 'Vegetable'
+  AND color = 'Green';

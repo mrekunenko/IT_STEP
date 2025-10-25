@@ -1,89 +1,140 @@
---Створіть наступні запити для бази даних з інформацією про овочі та фрукти з попереднього домашнього завдання:
-CREATE DATABASE FRUITS_VEGETABLES;
+-- ---------------------------------------------------------------------
+-- Завдання 1.
+-- Створити наступні запити для бази даних з інформацією
+-- про овочі та фрукти:
+-- ---------------------------------------------------------------------
 
-CREATE TABLE FRUITS_VEGETABLES (
-    FRUIT_VEGETABLE_ID INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    FRUIT_VEGETABLE_NAME VARCHAR(50) NOT NULL,
-    TYPE_FRUIT_VAGETABLE VARCHAR(20) NOT NULL,
-    FRUIT_VEGETABLE_COLOR VARCHAR(30),
-    FRUIT_VEGETABLE_CALS INT CHECK (FRUIT_VEGETABLE_CALS >= 0),
-    FRUIT_VEGETABLE_ABOUT VARCHAR(255)
-);
+-- 1. Відображення усіх овочів з калорійністю, меншою за вказану.
+--    Приклад: менше 50 ккал.
+SELECT *
+FROM products
+WHERE kind = 'Vegetable'
+  AND calories < 50;
 
-INSERT INTO FRUITS_VEGETABLES
-(FRUIT_VEGETABLE_NAME, TYPE_FRUIT_VAGETABLE, FRUIT_VEGETABLE_COLOR, FRUIT_VEGETABLE_CALS, FRUIT_VEGETABLE_ABOUT)
-VALUES
-('Apple', 'Fruit', 'Red', 52, 'Sweet and juicy fruit'),
-('Banana', 'Fruit', 'Yellow', 89, 'Soft tropical fruit'),
-('Orange', 'Fruit', 'Orange', 47, 'Citrus rich in vitamin C'),
-('Strawberry', 'Fruit', 'Red', 33, 'Small and sweet berry'),
-('Watermelon', 'Fruit', 'Green/Red', 30, 'Refreshing summer fruit'),
-('Pear', 'Fruit', 'Green', 57, 'Soft and juicy fruit'),
-('Peach', 'Fruit', 'Orange', 39, 'Sweet fuzzy fruit'),
-('Grape', 'Fruit', 'Purple', 69, 'Small sweet berries'),
-('Pineapple', 'Fruit', 'Yellow', 50, 'Tropical juicy fruit'),
-('Kiwi', 'Fruit', 'Brown/Green', 41, 'Tangy and vitamin-rich fruit'),
-('Tomato', 'Vegetable', 'Red', 18, 'Common salad vegetable'),
-('Cucumber', 'Vegetable', 'Green', 16, 'Cool and crunchy vegetable'),
-('Carrot', 'Vegetable', 'Orange', 41, 'Rich in beta-carotene'),
-('Potato', 'Vegetable', 'Brown', 77, 'Starchy root vegetable'),
-('Onion', 'Vegetable', 'White', 40, 'Used in cooking for flavor'),
-('Broccoli', 'Vegetable', 'Green', 34, 'Healthy green vegetable'),
-('Spinach', 'Vegetable', 'Green', 23, 'Leafy and iron-rich'),
-('Cabbage', 'Vegetable', 'Green', 25, 'Common leafy vegetable'),
-('Eggplant', 'Vegetable', 'Purple', 25, 'Soft and spongy vegetable'),
-('Pepper', 'Vegetable', 'Red', 31, 'Colorful and sweet vegetable');
 
--- ■ Відображення усіх овочів з калорійністю, менше вказаної.
-SELECT * FROM FRUITS_VEGETABLES WHERE FRUIT_VEGETABLE_CALS < 50 AND TYPE_FRUIT_VAGETABLE LIKE 'Vegetable';
+-- 2. Відображення усіх фруктів з калорійністю у вказаному діапазоні.
+--    Наприклад: від 30 до 60 включно.
+SELECT *
+FROM products
+WHERE kind = 'Fruit'
+  AND calories BETWEEN 30 AND 60;
 
--- ■ Відображення усіх фруктів з калорійністю у вказаному діапазоні.
-SELECT * FROM FRUITS_VEGETABLES WHERE TYPE_FRUIT_VAGETABLE LIKE 'Fruit' AND FRUIT_VEGETABLE_CALS BETWEEN 30 AND 60;
 
--- ■ Відображення усіх овочів, у назві яких є вказане слово. Наприклад, слово: капуста.
-SELECT * FROM FRUITS_VEGETABLES WHERE TYPE_FRUIT_VAGETABLE LIKE 'Vegetable' AND LOWER(FRUIT_VEGETABLE_NAME) LIKE '%cabbage%';
+-- 3. Відображення усіх овочів, у назві яких є вказане слово.
+--    Наприклад: "капуста".
+--    У нашій таблиці це "Cabbage".
+SELECT *
+FROM products
+WHERE kind = 'Vegetable'
+  AND name ILIKE '%cabbage%';
 
--- ■ Відображення усіх овочів та фруктів, у короткому описі яких є вказане слово. Наприклад, слово: гемоглобін.
-SELECT * FROM FRUITS_VEGETABLES WHERE FRUIT_VEGETABLE_ABOUT LIKE '%sweet%';
 
--- ■ Показати усі овочі та фрукти жовтого або червоного кольору.
-SELECT * FROM FRUITS_VEGETABLES WHERE LOWER(FRUIT_VEGETABLE_COLOR) LIKE 'red' OR LOWER(FRUIT_VEGETABLE_COLOR)LIKE 'yellow';
+-- 4. Відображення усіх овочів та фруктів, у короткому описі яких є вказане слово.
+--    Наприклад: "гемоглобін", "залізо", "вітамін".
+SELECT *
+FROM products
+WHERE description ILIKE '%гемоглобін%'
+   OR description ILIKE '%залізо%'
+   OR description ILIKE '%вітамін%'
+   OR description ILIKE '%iron%'
+   OR description ILIKE '%vitamin%';
 
--- ■ Показати кількість овочів.
-SELECT TYPE_FRUIT_VAGETABLE, COUNT(*) FROM FRUITS_VEGETABLES WHERE TYPE_FRUIT_VAGETABLE LIKE 'Vegetable' GROUP BY TYPE_FRUIT_VAGETABLE;
 
--- ■ Показати кількість фруктів.
-SELECT TYPE_FRUIT_VAGETABLE, COUNT(*) FROM FRUITS_VEGETABLES WHERE TYPE_FRUIT_VAGETABLE LIKE 'Fruit' GROUP BY TYPE_FRUIT_VAGETABLE;
+-- 5. Показати усі овочі та фрукти жовтого або червоного кольору.
+--    Враховуємо і випадки на кшталт 'Green/Red'.
+SELECT *
+FROM products
+WHERE color ILIKE '%yellow%'
+   OR color ILIKE '%red%';
 
--- ■ Показати кількість овочів та фруктів заданого кольору.
-SELECT FRUIT_VEGETABLE_COLOR, COUNT(*) FROM FRUITS_VEGETABLES WHERE FRUIT_VEGETABLE_COLOR LIKE 'Red' GROUP BY FRUIT_VEGETABLE_COLOR;
 
--- ■ Показати кількість овочів та фруктів кожного кольору.
-SELECT FRUIT_VEGETABLE_COLOR, COUNT(*) FROM FRUITS_VEGETABLES GROUP BY FRUIT_VEGETABLE_COLOR;
 
--- ■ Показати мінімальну калорійність овочів та фруктів.
-SELECT TYPE_FRUIT_VAGETABLE, MIN(FRUIT_VEGETABLE_CALS) FROM FRUITS_VEGETABLES GROUP BY TYPE_FRUIT_VAGETABLE;
+-- ---------------------------------------------------------------------
+-- Завдання 2.
+-- Створити наступні запити:
+-- ---------------------------------------------------------------------
 
--- ■ Показати максимальну калорійність овочів та фруктів.
-SELECT TYPE_FRUIT_VAGETABLE, MAX(FRUIT_VEGETABLE_CALS) FROM FRUITS_VEGETABLES GROUP BY TYPE_FRUIT_VAGETABLE;
+-- 1. Показати кількість овочів.
+SELECT COUNT(*) AS vegetable_count
+FROM products
+WHERE kind = 'Vegetable';
 
--- ■ Показати середню калорійність овочів та фруктів.
-SELECT TYPE_FRUIT_VAGETABLE, AVG(FRUIT_VEGETABLE_CALS) FROM FRUITS_VEGETABLES GROUP BY TYPE_FRUIT_VAGETABLE;
 
--- ■ Показати фрукт з мінімальною калорійністю.
-SELECT FRUIT_VEGETABLE_NAME, FRUIT_VEGETABLE_CALS
-FROM FRUITS_VEGETABLES
-WHERE FRUIT_VEGETABLE_CALS = (
-    SELECT MIN(FRUIT_VEGETABLE_CALS)
-    FROM FRUITS_VEGETABLES
-	WHERE TYPE_FRUIT_VAGETABLE = 'Fruit'
-) AND TYPE_FRUIT_VAGETABLE LIKE 'Fruit';
+-- 2. Показати кількість фруктів.
+SELECT COUNT(*) AS fruit_count
+FROM products
+WHERE kind = 'Fruit';
 
--- ■ Показати фрукт з максимальною калорійністю.
-SELECT FRUIT_VEGETABLE_NAME, FRUIT_VEGETABLE_CALS
-FROM FRUITS_VEGETABLES
-WHERE FRUIT_VEGETABLE_CALS = (
-    SELECT MAX(FRUIT_VEGETABLE_CALS)
-    FROM FRUITS_VEGETABLES
-	WHERE TYPE_FRUIT_VAGETABLE = 'Fruit'
-) AND TYPE_FRUIT_VAGETABLE LIKE 'Fruit';
+
+-- 3. Показати кількість овочів та фруктів заданого кольору.
+--    Наприклад, рахуємо всі елементи, які мають "Green" у полі color.
+SELECT COUNT(*) AS green_items_count
+FROM products
+WHERE color ILIKE '%green%';
+
+
+-- 4. Показати кількість овочів та фруктів кожного кольору.
+--    Тобто групування за color.
+SELECT color,
+       COUNT(*) AS items_per_color
+FROM products
+GROUP BY color
+ORDER BY items_per_color DESC;
+
+
+-- 5. Показати колір мінімальної кількості овочів та фруктів.
+SELECT color,
+       COUNT(*) AS items_per_color
+FROM products
+GROUP BY color
+ORDER BY items_per_color ASC
+LIMIT 1;
+
+
+-- 6. Показати колір максимальної кількості овочів та фруктів.
+SELECT color,
+       COUNT(*) AS items_per_color
+FROM products
+GROUP BY color
+ORDER BY items_per_color DESC
+LIMIT 1;
+
+
+-- 7. Показати мінімальну калорійність овочів та фруктів.
+SELECT MIN(calories) AS min_calories_all
+FROM products;
+
+
+-- 8. Показати максимальну калорійність овочів та фруктів.
+SELECT MAX(calories) AS max_calories_all
+FROM products;
+
+
+-- 9. Показати середню калорійність овочів та фруктів.
+SELECT AVG(calories) AS avg_calories_all
+FROM products;
+
+
+-- 10. Показати фрукт з мінімальною калорійністю.
+SELECT *
+FROM products
+WHERE kind = 'Fruit'
+ORDER BY calories ASC
+LIMIT 1;
+
+
+-- 11. Показати фрукт з максимальною калорійністю.
+SELECT *
+FROM products
+WHERE kind = 'Fruit'
+ORDER BY calories DESC
+LIMIT 1;
+
+
+-- Додаткова статистика по кожному типу (окремо фрукти і окремо овочі):
+SELECT kind,
+       MIN(calories) AS min_calories,
+       MAX(calories) AS max_calories,
+       AVG(calories) AS avg_calories
+FROM products
+GROUP BY kind;

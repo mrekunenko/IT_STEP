@@ -1,37 +1,8 @@
--- Модуль 15. Вступ до теорії баз даних
--- Тема: Вступ до теорії баз даних.
--- Частина 3
--- Завдання 1
+-- Тема: Вступ до теорії баз даних.  Частина 4/1
 
--- #==============================================================================================================
-
--- База даних Академія (Academy) містить інформацію про співробітників та внутрішній порядок академії.
--- Викладачі, які читають лекції в академії, занесені до таблиці
--- Викладачі (Teachers), в якій зібрано основну інформацію: ім’я, прізвище, дані про зарплату, дата прийому на роботу.
--- Також у базі даних є інформація про групи, яка зберігається в таблиці Групи (Groups).
--- Дані про факультети та кафедри містяться в таблицях Факультети (Faculties) та Кафедри (Departments) відповідно.
 
 CREATE DATABASE ACADEMY;
 
--- #==============================================================================================================
--- Кафедри (Departments)
--- ■ Ідентифікатор (Id). Унікальний ідентифікатор кафедри.
--- ▷ Тип даних — int.
--- ▷ Автоприріст.
--- ▷ Не містить null-значення.
--- ▷ Первинний ключ.
--- #=========================
--- ■ Фінансування (Financing). Фонд фінансування кафедри.
--- ▷ Тип даних — money.
--- ▷ Не містить null-значення.
--- ▷ Не може бути менше, ніж 0.
--- ▷ Значення за замовчуванням — 0.
--- #=========================
--- ■ Назва (Name). Назва кафедри.
--- ▷ Тип даних — varchar(100).
--- ▷ Не містить null-значення.
--- ▷ Не може бути порожньою.
--- ▷ Має бути унікальною.
 
 CREATE TABLE DEPARTMENTS (
 	ID SERIAL NOT NULL PRIMARY KEY,
@@ -53,24 +24,6 @@ INSERT INTO DEPARTMENTS (FINANCING, NAME) VALUES
 
 SELECT * FROM DEPARTMENTS;
 
--- #==============================================================================================================
--- Факультети(Faculties)
--- ■ Ідентифікатор (Id). Унікальний ідентифікатор факультету.
--- ▷ Тип даних — int.
--- ▷ Автоприріст.
--- ▷ Не містить null-значення.
--- ▷ Первинний ключ.
--- #=========================
--- ■ Декан (Dean). Декан факультету.
--- ▷ Тип даних — varchar(255).
--- ▷ Не містить null-значення.
--- ▷ Не може бути порожнім.
--- #=========================
--- ■ Назва (Name). Назва факультету.
--- ▷ Тип даних — varchar(100).
--- ▷ Не містить null-значення.
--- ▷ Не може бути порожньою.
--- ▷ Має бути унікальною.
 
 CREATE TABLE FACULTIES (
 	ID SERIAL NOT NULL PRIMARY KEY,
@@ -538,84 +491,54 @@ SELECT * FROM SUBJECTS;
 -- #==============================================================================================================
 
 -- 1. Виведіть усі можливі пари рядків викладачів і груп.
-SELECT T.SURNAME, GT.NAME
-FROM GROUPSLECTURES GL
-		JOIN LECTURES L ON GL.LECTUREID = L.ID
-		JOIN GROUPS_TABLE GT ON GL.GROUPID = GT.ID
-		JOIN TEACHERS T ON L.TEACHERID = T.ID;
+--    (кожен викладач у поєднанні з кожною групою)
+SELECT
+    T.SURNAME AS teacher_surname,
+    G.NAME    AS group_name
+FROM TEACHERS AS T
+CROSS JOIN GROUPS_TABLE AS G;
 
--- 2. Виведіть назви факультетів, фонд фінансування кафедр яких перевищує фонд фінансування факультету.
-SELECT DEP.NAME
-FROM DEPARTMENTS DEP
-		JOIN FACULTIES F ON DEP.FACULTYID = F.ID
-WHERE DEP.FINANCING < F.FINANCING;
+
+-- 2. Виведіть назви факультетів, фонд фінансування кафедр яких
+--    перевищує фонд фінансування факультету.
+SELECT DISTINCT
+    F.NAME AS faculty_name
+FROM DEPARTMENTS AS D
+JOIN FACULTIES   AS F
+    ON D.FACULTYID = F.ID
+WHERE D.FINANCING > F.FINANCING;
+
 
 -- 3. Виведіть прізвища кураторів груп і назви груп, які вони курирують.
-SELECT C.SURNAME, GT.NAME FROM GROUPSCURATORS GC
-		JOIN CURATORS C ON GC.CURATORID = C.ID
-		JOIN GROUPS_TABLE GT ON GC.GROUPID = GT.ID
+SELECT
+    C.SURNAME AS curator_surname,
+    G.NAME    AS group_name
+FROM GROUPSCURATORS AS GC
+JOIN CURATORS       AS C ON GC.CURATORID = C.ID
+JOIN GROUPS_TABLE   AS G ON GC.GROUPID   = G.ID;
 
--- 4. Виведіть імена та прізвища викладачів, які читають лекції у групі «Группа ЭК-101».
-SELECT T.NAME, T.SURNAME
-FROM GROUPSLECTURES GL
-		JOIN LECTURES L ON GL.LECTUREID = L.ID
-		JOIN GROUPS_TABLE GT ON GL.GROUPID = GT.ID
-		JOIN TEACHERS T ON L.TEACHERID = T.ID
-WHERE GT.NAME = 'Группа ЭК-101';
 
--- 5. Виведіть прізвища викладачів і назви факультетів, на яких вони читають лекції.
-SELECT T.SURNAME, DEP.NAME
-FROM GROUPSLECTURES GL
-		JOIN LECTURES L ON GL.LECTUREID = L.ID
-		JOIN GROUPS_TABLE GT ON GL.GROUPID = GT.ID
-		JOIN TEACHERS T ON L.TEACHERID = T.ID
-		JOIN DEPARTMENTS DEP ON GT.DEPARTMENTID = DEP.ID;
+-- 4. Виведіть імена та прізвища викладачів, які читають лекції
+--    у групі 'Группа ЭК-101'.
+SELECT DISTINCT
+    T.NAME    AS teacher_name,
+    T.SURNAME AS teacher_surname
+FROM GROUPSLECTURES AS GL
+JOIN LECTURES       AS L  ON GL.LECTUREID = L.ID
+JOIN GROUPS_TABLE   AS G  ON GL.GROUPID   = G.ID
+JOIN TEACHERS       AS T  ON L.TEACHERID  = T.ID
+WHERE G.NAME = 'Группа ЭК-101';
 
--- 6. Виведіть назви кафедр і назви груп, які до них належать.
-SELECT F.NAME, GT.NAME
-FROM GROUPS_TABLE GT
-		JOIN DEPARTMENTS DEP ON GT.DEPARTMENTID = DEP.ID
-		JOIN FACULTIES F ON DEP.FACULTYID = F.ID;
 
--- 7. Виведіть назви предметів, які викладає викладач «Иван Петренко».
-SELECT T.NAME, T.SURNAME, S.NAME
-FROM LECTURES L
-		JOIN TEACHERS T ON L.TEACHERID = T.ID
-		JOIN SUBJECTS S ON L.SUBJECTID = S.ID
-WHERE T.NAME = 'Иван' AND T.SURNAME = 'Петренко';
+-- 5. Виведіть прізвища викладачів і назви факультетів,
+--    на яких вони читають лекції.
+SELECT DISTINCT
+    T.SURNAME AS teacher_surname,
+    F.NAME    AS faculty_name
+FROM GROUPSLECTURES AS GL
+JOIN LECTURES       AS L  ON GL.LECTUREID    = L.ID
+JOIN TEACHERS       AS T  ON L.TEACHERID     = T.ID
+JOIN GROUPS_TABLE   AS G  ON GL.GROUPID      = G.ID
+JOIN DEPARTMENTS    AS D  ON G.DEPARTMENTID  = D.ID
+JOIN FACULTIES      AS F  ON D.FACULTYID     = F.ID;
 
--- 8. Виведіть назви кафедр, на яких викладається дисципліна «Информатика».
-SELECT DEP.NAME
-FROM GROUPSLECTURES GL
-		JOIN GROUPS_TABLE GT ON GL.GROUPID = GT.ID
-		JOIN DEPARTMENTS DEP ON GT.DEPARTMENTID = DEP.ID
-		JOIN LECTURES L ON GL.LECTUREID = L.ID
-		JOIN SUBJECTS S ON L.SUBJECTID = S.ID
-WHERE S.NAME = 'Информатика';
-
--- 9. Виведіть назви груп, що належать до факультету «Факультет экономики и IT».
-SELECT GT.NAME
-FROM GROUPSLECTURES GL
-		JOIN GROUPS_TABLE GT ON GL.GROUPID = GT.ID
-		JOIN DEPARTMENTS DEP ON GT.DEPARTMENTID = DEP.ID
-		JOIN FACULTIES F ON DEP.FACULTYID = F.ID
-WHERE F.NAME = 'Факультет экономики и IT';
-
--- 10. Виведіть назви груп 5-го курсу, а також назви факультетів, до яких вони належать.
-SELECT GT.NAME, F.NAME
-FROM GROUPSLECTURES GL
-		JOIN GROUPS_TABLE GT ON GL.GROUPID = GT.ID
-		JOIN DEPARTMENTS DEP ON GT.DEPARTMENTID = DEP.ID
-		JOIN FACULTIES F ON DEP.FACULTYID = F.ID
-WHERE GT.YEAR = 5;
-
--- 11. Виведіть повні імена викладачів і лекції, які вони читають (назви предметів та груп).
--- Зробіть відбір по тим лекціям, -- які проходять в аудиторії «Аудитория 105».
-SELECT T.NAME, T.SURNAME, L.LECTUREROOM, S.NAME, GT.NAME
-FROM GROUPSLECTURES GL
-		JOIN GROUPS_TABLE GT ON GL.GROUPID = GT.ID
-		JOIN DEPARTMENTS DEP ON GT.DEPARTMENTID = DEP.ID
-		JOIN LECTURES L ON GL.LECTUREID = L.ID
-		JOIN TEACHERS T ON L.TEACHERID = T.ID
-		JOIN SUBJECTS S ON L.SUBJECTID = S.ID
-WHERE L.LECTUREROOM = 'Аудитория 105';
