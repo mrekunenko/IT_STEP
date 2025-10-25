@@ -14,7 +14,7 @@ import json
 
 
 # ------------------------
-# Data layer helpers
+# Допоміжні засоби рівня даних
 # ------------------------
 
 DATA_FILE = Path("movies.json")
@@ -22,8 +22,8 @@ DATA_FILE = Path("movies.json")
 
 def read_db() -> List[dict]:
     """
-    Read the movie database from the JSON file.
-    Always returns a list (possibly empty).
+    Зчитує базу даних фільмів з JSON-файлу.
+    Завжди повертає список (можливо, порожній).
     """
     if not DATA_FILE.exists():
         return []
@@ -40,7 +40,7 @@ def read_db() -> List[dict]:
 
 def write_db(movies: List[dict]) -> None:
     """
-    Write the movie database (list of dicts) to the JSON file.
+    Записати базу даних фільмів (список словників) у файл JSON.
     """
     with DATA_FILE.open("w", encoding="utf-8") as fh:
         json.dump(movies, fh, ensure_ascii=False, indent=2)
@@ -48,7 +48,7 @@ def write_db(movies: List[dict]) -> None:
 
 def find_movie_by_id(movies: List[dict], movie_id: int) -> Optional[dict]:
     """
-    Return movie dict with matching id, or None.
+    Повернути словник фільму з відповідним ідентифікатором або «None».
     """
     for movie in movies:
         if movie.get("id") == movie_id:
@@ -62,7 +62,7 @@ def find_movie_by_id(movies: List[dict], movie_id: int) -> Optional[dict]:
 
 class Movie(BaseModel):
     """
-    Pydantic model for movie validation.
+    Pydantic модель (для перевірки якості даних)
     """
     id: int = Field(..., ge=1, description="Movie unique ID")
     title: str = Field(..., min_length=1, description="Movie title")
